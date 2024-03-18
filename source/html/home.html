@@ -1,0 +1,31 @@
+{% extends "layout.html" %} {% block body %}
+
+<div class="menu d-flex justify-content-center my-4">
+    <div class="card shadow-sm text-center w-75">
+        <div class="card-body">
+            <h5 class="card-title">Ações</h5>
+            <div class="list-group">
+                {% if not message %}
+                <a href="{{ url_for('start') }}" class="list-group-item list-group-item-action text-success">Iniciar o Sorteio</a>
+                {% endif %}
+                <a href="{{ url_for('bet') }}" class="list-group-item list-group-item-action">Registrar Nova Aposta</a>
+                <a href="{{ url_for('list') }}" class="list-group-item list-group-item-action">Listar Apostas</a>
+                <a href="{{ url_for('end') }}" class="list-group-item list-group-item-action {% if not message %}disabled{% endif %}">Finalizar Sorteio</a>
+                <a href="{{ url_for('prize') }}"" class="list-group-item list-group-item-action disabled" aria-current="false">Confira as Premiações</a>
+            </div>
+
+            {% if message %}
+            <div class="alert alert-success mt-3" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+            {% if warning %}
+            <div class="alert alert-danger" role="alert">
+                {{ warning }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %} {% block body %}
+
+<div class="menu d-flex justify-content-center my-4">
+    <div class="card shadow-sm text-center w-75">
+        <form method="POST" class="card-body">
+            <h5 class="card-title">Registrar Nova Aposta</h5>
+            <div class="list-group">
+                <label for="name" class="form-label my-2">Informe o seu nome</label>
+                <input type="text" name="name" class="form-control my-2" id="name" placeholder="full name" required>
+
+                <label for="cpf" class="form-label my-2">Informe o seu CPF</label>
+                <input type="number" name="cpf" class="form-control my-2" id="cpf" placeholder="00011122233" required>
+
+                <label for="bet" class="form-label my-2">Informe 5 diferentes números, de 1 até 50, separados com
+                    espaço</label>
+                <input type="text" name="bet" class="form-control my-2" id="bet" placeholder="00 00 00 00 00" required>
+
+                <div class="col-auto my-2">
+                    <a href="{{ url_for('start') }}" type="button" class="btn btn-danger">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Enviar!</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
