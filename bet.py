@@ -88,13 +88,15 @@ def bet():
         name = form['name']
         cpf = form['cpf']
         bet = form['bet']
-
+        if not bet:
+            bet = " ".join(map(str, draw_five_numbers()))
+        
         warning = verify_fields(name, cpf, bet)
         if warning:
             return render_template('home.html', message=message, warning=warning)
         
         # Se tudo estiver certo, salva no banco de dados
-        bet = Bet(register=get_register(register), name=name, cpf=cpf, bet=bet)
+        bet = Bet(register=get_register(), name=name, cpf=cpf, bet=bet)
         bet.save()
 
         message = "Aposta registrada com sucesso!"
@@ -107,14 +109,44 @@ def bet():
 
 @app.route('/list')
 def list():
-
-    return render_template('bet.html')
+    bets_list = Bet.select().order_by(Bet.register)
+    return render_template('list.html', list=bets_list)
 
 # Finalizar apostas e iniciar apuração dos resultados
 
 
 @app.route('/end')
 def end():
+    bets_list = []
+    # Seleciona todas as linhas do nosso BD com as colunas de nome e aposta
+    bets = Bet.select(Bet.name, Bet.bet)
+    # Para cada linha, adicione as apostas transformadas para lista de inteiros  
+    for bet in bets:
+        bets_list.append([int(num) for num in bet.bet.split()])
+    print(bets_list)
+    
+    # Lista de números sorteados 
+    drawn_numbers = draw_five_numbers()
+
+    # Quantas rodadas de sorteio foram realizadas
+    rounds = 0
+    # Limite de rodadas
+    max_rounds = 25
+
+    # Quantidade de apostas vencedoras
+    winning_bets = 0
+
+    # Lista de apostas vencedoras ou mensagem de que não houve vencedores 
+    winners_list = []
+
+    # Lista de todos os números apostados, considerando todas as apostas, ordenada do número mais escolhido ao menos escolhido. Ao lado de cada número deverá haver a quantidade de apostas que contêm aquele número, como  no  exemplo  a  seguir:
+    # ...
+    
+    # Enquanto não tiver nenhum ganhador e não tiver atingido o limite de rounds
+    while not winners_list and rounds < max_rounds:
+        winners_list = verify_winner(drawn_numbers, bets_list)
+        rounds += 1
+        add_draw_number(drawn_numbers)
     return render_template('bet.html')
 
 # Premiação dos vencedores
@@ -140,7 +172,7 @@ def add_draw_number(drawn_numbers):
     """Recebe uma lista e adiciona mais um número sorteado."""
 
     # Podemos adicionar até 25 novos números sorteados
-    if (drawn_numbers.length >= 30):
+    if (len(drawn_numbers) >= 30):
         raise NotImplementedError
 
     num = random.randint(1, 50)
@@ -149,37 +181,55 @@ def add_draw_number(drawn_numbers):
     drawn_numbers.append(num)
 
 def verify_fields(name, cpf, bet):
-    warning = None
+  """Verifica se o nome, CPF e aposta são válidos."""
 
-    # Validação do nome
-    if len(name) < 3:
-        warning = "Nome precisa ter, no mínimo, 3 caracteres!"
-    else:
-        # Validação do CPF
-        if not cpf.isdigit() or len(cpf) != 11:
-            warning = "CPF inválido! Digite apenas números e com 11 dígitos."
-        else:
-            # Validação da aposta
-            bet_numbers = [int(x) for x in bet.split()]
-            invalid = any(int(x) < 1 or int(x) > 50 for x in bet_numbers)
+  warning = None
 
-            print(bet_numbers)
-            print(len(bet_numbers) != 5)
-            print(invalid)
-
-            if len(bet_numbers) != 5 or invalid:
-                warning = "Aposta inválida! Digite 5 números entre 1 e 50 separados por espaços."
-
+  # Validação do nome (mínimo 3 caracteres)
+  if len(name) < 3:
+    warning = "Nome precisa ter, no mínimo, 3 caracteres!"
     return warning
 
-register = 1000
-def get_register(register):
-    '''Retorna o registro disponível'''
-    register += 1
-    return register
+  # Validação do CPF (apenas números e 11 dígitos)
+  if not cpf.isdigit() or len(cpf) != 11:
+    warning = "CPF inválido! Digite apenas números e com 11 dígitos."
+    return warning
+
+  # Validação da aposta (5 números entre 1 e 50, sem repetições)
+  try:
+    bet_numbers = [int(num) for num in bet.split()]
+    if len(bet_numbers) != 5 or min(bet_numbers) < 1 or max(bet_numbers) > 50 or len(set(bet_numbers)) != 5:
+        raise ValueError
+  except ValueError:
+    warning = "Aposta inválida! Digite 5 números diferentes entre 1 e 50 separados por espaços."
+
+  return warning
+
+def verify_winner(drawn, bets):
+    '''
+    A função verifica se todos os números da lista 'drawn' estão na lista de apostas.
+    A função espera uma lista de 'bets' com listas internas
+    '''
+    
+    winners = []
+    for list in bets:
+        count = 0
+        for num in list:
+            if num in drawn: count += 1
+        if count >= 5: winners.append(list)
+
+    return winners
+
+register = 999
+def get_register():
+  """Retorna o registro disponível e incrementa o valor global."""
+  # Declara que register é uma variável global
+  global register  
+  register += 1
+  return register
 
 # Executando a aplicação
 if __name__ == '__main__':
+    drop_table()
     create_table()
-    # drop_table()
     app.run(debug=True)
