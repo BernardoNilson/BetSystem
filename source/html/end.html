@@ -1,87 +1,85 @@
 {% extends "layout.html" %} {% block body %}
 
-<div class="menu d-flex justify-content-center my-4">
-    <div class="card shadow-sm text-center w-75">
-        <div class="card-body">
-            <h5 class="card-title">Apuração dos Resultados</h5>
-            <ul class="list-group list-group-flush text-start">
-                <li class="list-group-item">
-                    <h6>Lista de números sorteados:</h6>
-                    <div>
-                        {% for num in drawn %}
-                        {{ num }}
-                        {% endfor %}
-                    </div>
-                </li>
-                <li class="list-group-item">
-                    <h6>Quantas rodadas aconteceram?</h6>
-                    <div>
-                        {{ rounds }}
-                    </div>
-                </li>
-                <li class="list-group-item">
-                    <h6>Quantidade de apostas vencedoras:</h6>
-                    <div>
-                        {{ winners_count }}
-                    </div>
-                </li>
-                <li class="list-group-item">
-                    <h6>Lista de apostas vencedoras:</h6>
-                    {% if message != None %}
-                    <div class="alert alert-warning mt-3" role="alert">{{ message }}</div>
-                    {% else %}
-                    <div>
-                        {% for list in winners %}
-                            {{ list }}
-                        {% endfor %}
-                    </div><br>
-                    <div>
-                        {% for bet in winners_names %}
-                            {{ bet.bet }} -> {{ bet.name }}<br>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </li>
-                <li class="list-group-item">
-                    <h6>Lista de todos os números apostados, do mais escolhido ao menos escolhido:</h6>
-                    <div>
-                        <table class="table table-striped table-hover w-auto text-center">
-                            <caption>Frequência dos Números</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Número</th>
-                                    <th scope="col">Frequência</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for num, count in num_frequency %}
-                                <tr>
-                                    <td>{{ num }}</td>
-                                    <td>{{ count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </li>
-            </ul>
-            <h5 class="card-title">Premiação</h5>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">An item</li>
-                <li class="list-group-item">A second item</li>
-            </ul>
-
-
-            <div class="col-auto my-2">
-                <a href="{{ url_for('homepage') }}" type="button" class="btn btn-secondary">Voltar à Tela Inicial</a>
+<div class="card-body">
+    <h5 class="card-title">Apuração dos Resultados</h5>
+    <ul class="list-group list-group-flush text-start">
+        <li class="list-group-item">
+            <h6>Lista de números sorteados:</h6>
+            <div>
+                {% for num in drawn %}
+                {{ num }}
+                {% endfor %}
             </div>
+        </li>
+        <li class="list-group-item">
+            <h6>Quantas rodadas aconteceram?</h6>
+            <div>
+                {{ rounds }}
+            </div>
+        </li>
+        <li class="list-group-item">
+            <h6>Quantidade de apostas vencedoras:</h6>
+            <div>
+                {{ winners_count }}
+            </div>
+        </li>
+        <li class="list-group-item">
+            <h6>Lista de apostas vencedoras:</h6>
+            {% if message != None %}
+            <div class="alert alert-warning mt-3" role="alert">{{ message }}</div>
+            {% else %}
+            <div>
+                {% for list in winners %}
+                {{ list }}
+                {% endfor %}
+            </div><br>
+            {% endif %}
+        </li>
+        <li class="list-group-item">
+            <h6>Lista de todos os números apostados, do mais escolhido ao menos escolhido:</h6>
+            <div>
+                <table class="table table-striped table-hover w-auto text-center">
+                    <caption>Frequência dos Números</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Número</th>
+                            <th scope="col">Frequência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for num, count in num_frequency %}
+                        <tr>
+                            <td>{{ num }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </li>
+    </ul>
+    {% if message != None %}
+    <div class="alert alert-warning mt-3" role="alert">Sem prêmios. {{ message }}</div>
+    {% else %}
 
-        </div>
+    <h5 class="card-title">Premiação</h5>
+    <ul class="list-group list-group-flush">
+        {% for bet in winners_names %}
+        <li class="list-group-item">
+            <b>{{ bet.name }}</b>, com a aposta {{ bet.bet }}, ganhou <b>R$30.000,00</b> e um ingresso
+            para participar do evento <a
+                href="https://www.dell.com/en-us/dt/events/delltechnologiesworld/2024/index.htm"
+                class="link-secondary link-offset-2 link-underline-opacity-25">Dell Technologies World 2024</a>,
+            em Las Vegas
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="col-auto my-2">
+        <a href="{{ url_for('homepage') }}" type="button" class="btn btn-secondary">Voltar à Tela Inicial</a>
     </div>
-</div>
 
-<!-- return render_template('bet.html', drawn=drawn_numbers,
-                           rounds=rounds, winners_count=winners_count,
-                           winners=winners_list, num_frequency=num_frequency) -->
+</div>
 
 {% endblock %}

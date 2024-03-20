@@ -1,36 +1,32 @@
 {% extends "layout.html" %} {% block body %}
 
-<div class="menu d-flex justify-content-center my-4">
-    <div class="card shadow-sm text-center w-75">
-        <div class="card-body">
-            <h5 class="card-title">Lista de Apostas</h5>
-            <table class="table table-striped  table-hover">
-                <caption>Tabela / Registro de Apostas</caption>
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Registro</th>
-                        <th scope="col">Nome</th>
-                        <th scope="col">CPF</th>
-                        <th scope="col">Aposta</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for bet in list %}
-                    <tr>
-                        <th scope="row">{{ bet.id }}</th>
-                        <td>{{ bet.register }}</td>
-                        <td>{{ bet.name }}</td>
-                        <td>{{ bet.cpf }}</td>
-                        <td>{{ bet.bet }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="col-auto my-2">
-                <a href="{{ url_for('start') }}" type="button" class="btn btn-secondary">Voltar</a>
-            </div>
-        </div>
+<div class="card-body">
+    <h5 class="card-title">Lista de Apostas</h5>
+    <table class="table table-striped  table-hover">
+        <caption>Tabela / Registro de Apostas</caption>
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Registro</th>
+                <th scope="col">Nome</th>
+                <th scope="col">CPF</th>
+                <th scope="col">Aposta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bet in list %}
+            <tr>
+                <th scope="row">{{ bet.id }}</th>
+                <td>{{ bet.register }}</td>
+                <td>{{ bet.name }}</td>
+                <td>{{ bet.cpf }}</td>
+                <td>{{ bet.bet }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="col-auto my-2">
+        <a href="{{ url_for('start') }}" type="button" class="btn btn-secondary">Voltar</a>
     </div>
 </div>
 
