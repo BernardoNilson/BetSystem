@@ -11,11 +11,9 @@
                 {% endif %}
                 <a href="{{ url_for('bet') }}" class="list-group-item list-group-item-action">Registrar Nova Aposta</a>
                 <a href="{{ url_for('list') }}" class="list-group-item list-group-item-action">Listar Apostas</a>
-                <a href="{{ url_for('end') }}"
-                    class="list-group-item list-group-item-action {% if not message %}disabled{% endif %}">Finalizar
+                <a href="{{ url_for('end') }}" onclick="return confirm('Você tem certeza que deseja finalizar o sorteio? O sistema vai começar a apuração dos resultados.')"
+                    class="list-group-item list-group-item-action {% if message %}text-danger{% else %}disabled{% endif %}">Finalizar
                     Sorteio</a>
-                <a href="{{ url_for('prize') }}"" class=" list-group-item list-group-item-action disabled"
-                    aria-current="false">Confira as Premiações</a>
             </div>
 
             {% if message %}

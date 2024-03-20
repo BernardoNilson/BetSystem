@@ -2,6 +2,7 @@
 from flask import Flask, redirect, render_template, g, request, url_for
 from peewee import *
 import random
+from collections import defaultdict
 
 DATABASE = 'bet.db'
 DEBUG = True
@@ -117,44 +118,53 @@ def list():
 
 @app.route('/end')
 def end():
-    bets_list = []
+    message = None
+
     # Seleciona todas as linhas do nosso BD com as colunas de nome e aposta
     bets = Bet.select(Bet.name, Bet.bet)
+
+    bets_list = []
     # Para cada linha, adicione as apostas transformadas para lista de inteiros  
     for bet in bets:
         bets_list.append([int(num) for num in bet.bet.split()])
-    print(bets_list)
     
     # Lista de números sorteados 
-    drawn_numbers = draw_five_numbers()
+    # drawn_numbers = draw_five_numbers()
+    drawn_numbers = [1, 2, 3, 4, 5]
 
     # Quantas rodadas de sorteio foram realizadas
     rounds = 0
+
     # Limite de rodadas
     max_rounds = 25
-
-    # Quantidade de apostas vencedoras
-    winning_bets = 0
 
     # Lista de apostas vencedoras ou mensagem de que não houve vencedores 
     winners_list = []
 
-    # Lista de todos os números apostados, considerando todas as apostas, ordenada do número mais escolhido ao menos escolhido. Ao lado de cada número deverá haver a quantidade de apostas que contêm aquele número, como  no  exemplo  a  seguir:
-    # ...
-    
     # Enquanto não tiver nenhum ganhador e não tiver atingido o limite de rounds
     while not winners_list and rounds < max_rounds:
         winners_list = verify_winner(drawn_numbers, bets_list)
         rounds += 1
-        add_draw_number(drawn_numbers)
-    return render_template('bet.html')
+        if not winners_list: add_draw_number(drawn_numbers)
 
-# Premiação dos vencedores
+    # Seleciona todos os nomes com base em quem acertou a aposta
+    winners_list_str = []
+    for list in winners_list:
+        winner_str = " ".join(map(str, list))
+        winners_list_str.append(winner_str)
+    winners_names = Bet.select(Bet.name, Bet.bet).where(Bet.bet.in_(winners_list_str))
 
+    # Quantidade de apostas vencedoras
+    winners_count = len(winners_list)
 
-@app.route('/prize')
-def prize():
-    return render_template('bet.html')
+    # Lista de todos os números apostados, considerando todas as apostas, ordenada do número mais escolhido ao menos escolhido. Ao lado de cada número deverá haver a quantidade de apostas que contêm aquele número, como  no  exemplo  a  seguir:
+    num_frequency = count_numbers_frequency(bets_list)
+    
+    if not winners_list: message = "Nenhuma aposta foi sorteada. Tente novamente!"
+
+    return render_template('end.html', drawn=drawn_numbers,
+                           rounds=rounds, winners_count=winners_count,
+                           winners=winners_list, num_frequency=num_frequency, message=message, winners_names=winners_names)
 
 
 def draw_five_numbers():
@@ -166,7 +176,6 @@ def draw_five_numbers():
             num = random.randint(1, 50)
         drawn_numbers.append(num)
     return drawn_numbers
-
 
 def add_draw_number(drawn_numbers):
     """Recebe uma lista e adiciona mais um número sorteado."""
@@ -219,6 +228,23 @@ def verify_winner(drawn, bets):
         if count >= 5: winners.append(list)
 
     return winners
+
+def count_numbers_frequency(bets):
+    '''
+    A função retorna uma tupla ordenada contendo os pares chave/valor
+    '''
+
+    # Usei o defaultdict pois traz algumas simplificações e deixa o código mais legível
+    counts = defaultdict(int)
+
+    # Para cada lista de apostas dentro da lista, incrementa ou adicione o número e sua frequência
+    for bet in bets:
+        for num in bet:
+            counts[num] += 1
+
+    # Ordena o dicionário por contagem em ordem decrescente
+                        #  converte chave/valor, use frequência para ordem, configura ordem inversa
+    return sorted(counts.items(), key=lambda x: x[1], reverse=True)
 
 register = 999
 def get_register():
